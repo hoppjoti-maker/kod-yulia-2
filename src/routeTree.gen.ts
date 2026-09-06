@@ -10,7 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as FacesRouteImport } from './routes/faces'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AudioRouteImport } from './routes/audio'
 import { Route as FilmRouteImport } from './routes/film'
 import { Route as ChIdRouteImport } from './routes/ch.$id'
 
@@ -19,9 +20,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FacesRoute = FacesRouteImport.update({
-  id: '/faces',
-  path: '/faces',
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AudioRoute = AudioRouteImport.update({
+  id: '/audio',
+  path: '/audio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FilmRoute = FilmRouteImport.update({
@@ -37,34 +43,38 @@ const ChIdRoute = ChIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/faces': typeof FacesRoute
+  '/about': typeof AboutRoute
+  '/audio': typeof AudioRoute
   '/film': typeof FilmRoute
   '/ch/$id': typeof ChIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/faces': typeof FacesRoute
+  '/about': typeof AboutRoute
+  '/audio': typeof AudioRoute
   '/film': typeof FilmRoute
   '/ch/$id': typeof ChIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/faces': typeof FacesRoute
+  '/about': typeof AboutRoute
+  '/audio': typeof AudioRoute
   '/film': typeof FilmRoute
   '/ch/$id': typeof ChIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/faces' | '/film' | '/ch/$id'
+  fullPaths: '/' | '/about' | '/audio' | '/film' | '/ch/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/faces' | '/film' | '/ch/$id'
-  id: '__root__' | '/' | '/faces' | '/film' | '/ch/$id'
+  to: '/' | '/about' | '/audio' | '/film' | '/ch/$id'
+  id: '__root__' | '/' | '/about' | '/audio' | '/film' | '/ch/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  FacesRoute: typeof FacesRoute
+  AboutRoute: typeof AboutRoute
+  AudioRoute: typeof AudioRoute
   FilmRoute: typeof FilmRoute
   ChIdRoute: typeof ChIdRoute
 }
@@ -78,11 +88,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/faces': {
-      id: '/faces'
-      path: '/faces'
-      fullPath: '/faces'
-      preLoaderRoute: typeof FacesRouteImport
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/audio': {
+      id: '/audio'
+      path: '/audio'
+      fullPath: '/audio'
+      preLoaderRoute: typeof AudioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/film': {
@@ -104,7 +121,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  FacesRoute: FacesRoute,
+  AboutRoute: AboutRoute,
+  AudioRoute: AudioRoute,
   FilmRoute: FilmRoute,
   ChIdRoute: ChIdRoute,
 }

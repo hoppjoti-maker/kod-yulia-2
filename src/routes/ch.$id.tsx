@@ -1,238 +1,115 @@
-import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { BottomNav } from "@/components/bottom-nav";
-import { ChapterAudio, audioBus, stopAudioChain } from "@/components/chapter-audio";
-import { PercentBar } from "@/components/percent-bar";
-import { SiteHeader } from "@/components/site-header";
-import { TelegramBookGate } from "@/components/telegram-book-gate";
-import { BOOK, getChapter, neighbors, saveProgress } from "@/data/book";
-import { FREE_UNTIL, OFFER, isChapterOpen } from "@/lib/kit";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { AudioPlayer } from "@/components/audio-player";
+import { ChapterBody } from "@/components/chapter-body";
+import { NotFoundPage } from "@/components/not-found";
+import { ReaderToolbar } from "@/components/reader-toolbar";
+import { SiteShell } from "@/components/site-chrome";
+import { getChapter, neighbors } from "@/data/chapters";
+import { loadProgress, saveProgress } from "@/lib/progress";
 
 export const Route = createFileRoute("/ch/$id")({
   component: ChapterPage,
-  loader: ({ params }) => {
-    const chapter = getChapter(params.id);
-    if (!chapter) throw notFound();
-    return { chapter };
-  },
-  head: ({ params }) => {
-    const chapter = getChapter(params.id);
-    const title = chapter
-      ? `Глава ${chapter.id}. ${chapter.title} — ${BOOK.title}`
-      : BOOK.title;
-    return { meta: [{ title }] };
-  },
+  notFoundComponent: NotFoundPage,
 });
 
 function ChapterPage() {
-  const { chapter } = Route.useLoaderData();
+  const { id } = Route.useParams();
+  const chapter = getChapter(id);
+  if (!chapter) throw notFound();
   const { prev, next } = neighbors(chapter.id);
-  const navigate = useNavigate();
-  const [open, setOpen] = useState(() => Number(chapter.id) <= FREE_UNTIL);
 
   useEffect(() => {
-    saveProgress(chapter.id);
+    const saved = loadProgress();
+    if (saved?.chapterId === chapter.id && saved.scroll > 0) {
+      requestAnimationFrame(() => {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        window.scrollTo({ top: saved.scroll * Math.max(max, 1), behavior: "auto" });
+      });
+    } else {
+      window.scrollTo({ top: 0, behavior: "auto" });
+    }
+    saveProgress(chapter.id, saved?.chapterId === chapter.id ? saved.scroll : 0);
   }, [chapter.id]);
 
   useEffect(() => {
-    const sync = () => {
-      const unlocked = isChapterOpen(chapter.id);
-      setOpen(unlocked);
-      if (!unlocked) stopAudioChain();
+    const onScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const ratio = max > 0 ? window.scrollY / max : 0;
+      saveProgress(chapter.id, ratio);
     };
-    sync();
-    window.addEventListener("focus", sync);
-    window.addEventListener("kod-kit", sync);
-    return () => {
-      window.removeEventListener("focus", sync);
-      window.removeEventListener("kod-kit", sync);
-    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, [chapter.id]);
 
   return (
-    <main className="min-h-dvh bg-bg pb-36 text-fg md:pb-8">
-      <SiteHeader active="book" />
-
-      <article className="mx-auto max-w-xl px-5 py-5 md:max-w-3xl md:px-8 md:py-8">
-        <p className="text-xs tabular-nums tracking-[0.22em] text-accent uppercase">
-          Глава {chapter.id} · {chapter.wound} · {chapter.audioTime || BOOK.volume}
-        </p>
-        <h2 className="mt-1 font-display text-3xl font-medium leading-tight text-balance md:text-5xl">
-          {chapter.title}
-        </h2>
-        <p className="mt-2 font-display text-lg italic text-muted">{chapter.line}</p>
-
-        <div className="mt-4">
-          <PercentBar value={chapter.percent} />
-        </div>
-
-        <figure className="relative mt-5 overflow-hidden rounded-md border border-line">
+    <SiteShell solid>
+      <ReaderToolbar chapter={chapter} />
+      <article className="px-4 pb-16 pt-8 md:px-8 md:pt-12">
+        <header className="mx-auto max-w-[38rem]">
           <img
             src={chapter.image}
-            alt={chapter.caption}
-            className="aspect-video max-h-64 w-full object-cover object-top md:max-h-none"
+            alt=""
+            className="mb-8 aspect-[16/9] w-full rounded-lg object-cover object-center"
           />
-          <div className="glass-hold pointer-events-none absolute inset-0 bg-accent/10" aria-hidden />
-          <figcaption className="px-3 py-2 text-xs tracking-wide text-muted">
-            {chapter.caption}
-          </figcaption>
-        </figure>
+          <p className="font-display text-xs tracking-[0.28em] text-muted uppercase">
+            Глава {chapter.id} · {chapter.wound}
+            {chapter.percent != null ? ` · ${chapter.percent}%` : ""}
+          </p>
+          <h1 className="mt-2 font-display text-4xl tracking-[-0.03em] md:text-5xl">{chapter.title}</h1>
+        </header>
 
-        {open ? (
-          <>
-            <button
-              type="button"
-              onClick={() => audioBus.dispatchEvent(new Event("toggle"))}
-              className="mt-4 flex min-h-12 w-full items-center justify-center rounded-md border border-accent bg-surface font-display text-sm tracking-[0.16em] text-accent uppercase md:hidden"
-            >
-              Слушать главу · {chapter.audioTime || "голос"}
-            </button>
-
-            <ChapterAudio
-              dock
-              src={chapter.audio}
+        {chapter.audio ? (
+          <div className="mx-auto mt-8 max-w-[38rem]">
+            <AudioPlayer
+              src={chapter.audio.src}
               title={`${chapter.id}. ${chapter.title}`}
-              label={chapter.audioTime || "голос"}
-              onEnded={() => {
-                if (typeof window === "undefined") return;
-                if (sessionStorage.getItem("kod-yulia-2-chain") !== "1") return;
-                if (next && isChapterOpen(next.id)) {
-                  void navigate({ to: "/ch/$id", params: { id: next.id } });
-                } else {
-                  stopAudioChain();
-                }
-              }}
+              subtitle={`${chapter.audio.time} · канонический голос`}
             />
-
-            <div className="book-prose mt-7">
-              {chapter.paragraphs.map((b, i) => (
-                <p key={i} className={b.kind}>
-                  {b.text}
-                </p>
-              ))}
-            </div>
-
-            {Number(chapter.id) === FREE_UNTIL && next ? (
-              <section className="mt-10 rounded-md border border-accent/50 bg-surface p-5 text-center md:p-8">
-                <p className="font-display text-xs tracking-[0.28em] text-accent uppercase">
-                  Дегустация закрыта
-                </p>
-                <p className="mt-2 font-display text-2xl italic md:text-3xl">{next.cliff}</p>
-                <p className="mt-3 text-sm leading-relaxed text-pretty text-muted">
-                  Три главы. Привязка есть. Канал {OFFER.channel}/мес или бандл {OFFER.bundle}–
-                  {OFFER.bundleHigh}. Не минуты в час — плотность.
-                </p>
-                <div className="mt-5 flex justify-center">
-                  <TelegramBookGate
-                    label="Открыть 04–15"
-                    className="flex min-h-12 items-center justify-center gap-2 rounded-md border border-accent px-5 font-display text-sm tracking-[0.16em] text-accent uppercase hover:bg-raised"
-                  />
-                </div>
-              </section>
-            ) : null}
-          </>
+          </div>
         ) : (
-          <>
-            <div className="book-prose mt-7">
-              {chapter.paragraphs.slice(0, 2).map((b, i) => (
-                <p key={i} className={b.kind}>
-                  {b.text}
-                </p>
-              ))}
-            </div>
-            <div className="relative -mt-16 mb-6 h-24 bg-linear-to-t from-bg to-transparent" />
-            <section className="rounded-md border border-accent/50 bg-surface p-5 text-center md:p-8">
-              <p className="font-display text-xs tracking-[0.28em] text-accent uppercase">
-                Клифф · глава {chapter.id}
-              </p>
-              <p className="mt-2 font-display text-2xl italic md:text-3xl">{chapter.cliff}</p>
-              <p className="mt-3 text-sm leading-relaxed text-pretty text-muted">
-                Три главы были дегустацией. Дальше — плотность тома, не минуты. Голос пакета
-                читает до «не ноль».
-              </p>
-              <div className="mt-5 flex justify-center">
-                <TelegramBookGate
-                  label="Открыть 04–15"
-                  className="flex min-h-12 items-center justify-center gap-2 rounded-md border border-accent px-5 font-display text-sm tracking-[0.16em] text-accent uppercase hover:bg-raised"
-                />
-              </div>
-            </section>
-          </>
+          <p className="mx-auto mt-8 max-w-[38rem] font-display text-xs tracking-[0.18em] text-muted uppercase">
+            Текстовый режим · голос этой главы не записывался
+          </p>
         )}
 
-        <p className="mt-12 text-center text-xs tracking-[0.28em] text-muted uppercase">
-          /// конец фрагмента {chapter.id} ///
-        </p>
+        <div className="mt-10">
+          <ChapterBody paragraphs={chapter.paragraphs} />
+        </div>
 
-        {!next && (
-          <section className="relative mt-10 overflow-hidden rounded-md border border-line">
-            <img
-              src={chapter.image}
-              alt=""
-              className="aspect-video w-full object-cover object-center opacity-40"
-            />
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-bg/55 px-6 text-center">
-              <p className="font-display text-xs tracking-[0.32em] text-accent uppercase">
-                Код Юлия · Часть II
-              </p>
-              <p className="mt-3 font-display text-3xl italic text-fg md:text-5xl">Рот ещё мой.</p>
-              <p className="mt-4 max-w-md text-sm text-pretty text-muted">
-                Внутри не ноль. Город будет охотиться по мёртвому коду.
-              </p>
-            </div>
-          </section>
-        )}
-
-        <nav className="mt-8 grid gap-3 border-t border-line pt-6 sm:grid-cols-2">
+        <nav className="mx-auto mt-16 flex max-w-[38rem] items-stretch justify-between gap-3 border-t border-line pt-8">
           {prev ? (
             <Link
               to="/ch/$id"
               params={{ id: prev.id }}
-              className="min-h-14 rounded-md border border-line bg-surface p-4 transition-[border-color] duration-150 hover:border-accent"
+              className="min-h-12 flex-1 rounded-md border border-line px-4 py-3 hover:border-accent"
             >
-              <span className="block text-xs tracking-[0.18em] text-muted uppercase">
-                ← предыдущая
-              </span>
-              <span className="mt-1 block font-display text-xl">
-                {prev.id}. {prev.title}
-              </span>
+              <span className="block font-display text-[11px] tracking-[0.18em] text-muted uppercase">Назад</span>
+              <span className="mt-1 block font-display text-base">{prev.title}</span>
             </Link>
           ) : (
-            <Link
-              to="/"
-              hash="film"
-              className="min-h-14 rounded-md border border-line bg-surface p-4 transition-[border-color] duration-150 hover:border-accent"
-            >
-              <span className="block text-xs tracking-[0.18em] text-muted uppercase">
-                ← начало
-              </span>
-              <span className="mt-1 block font-display text-xl">Короткий метр</span>
-            </Link>
+            <span />
           )}
           {next ? (
             <Link
               to="/ch/$id"
               params={{ id: next.id }}
-              className="min-h-14 rounded-md border border-line bg-surface p-4 text-right transition-[border-color] duration-150 hover:border-accent"
+              className="min-h-12 flex-1 rounded-md border border-line px-4 py-3 text-right hover:border-accent"
             >
-              <span className="block text-xs tracking-[0.18em] text-muted uppercase">
-                следующая →
-              </span>
-              <span className="mt-1 block font-display text-xl">
-                {next.id}. {next.title}
-              </span>
+              <span className="block font-display text-[11px] tracking-[0.18em] text-muted uppercase">Вперёд</span>
+              <span className="mt-1 block font-display text-base">{next.title}</span>
             </Link>
           ) : (
-            <div className="min-h-14 rounded-md border border-accent/40 bg-surface p-4 text-right">
-              <span className="block text-xs tracking-[0.18em] text-accent uppercase">
-                конец тома
-              </span>
-              <span className="mt-1 block font-display text-xl italic">Рот ещё мой.</span>
-            </div>
+            <Link
+              to="/"
+              className="min-h-12 flex-1 rounded-md border border-line px-4 py-3 text-right hover:border-accent"
+            >
+              <span className="block font-display text-[11px] tracking-[0.18em] text-muted uppercase">Том</span>
+              <span className="mt-1 block font-display text-base">К оглавлению</span>
+            </Link>
           )}
         </nav>
       </article>
-      <BottomNav nextId={next?.id} />
-    </main>
+    </SiteShell>
   );
 }

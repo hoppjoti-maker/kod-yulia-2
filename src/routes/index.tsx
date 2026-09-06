@@ -1,159 +1,85 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BottomNav } from "@/components/bottom-nav";
-import { startAudioChain } from "@/components/chapter-audio";
-import { FilmStage } from "@/components/film-stage";
-import { SiteHeader } from "@/components/site-header";
-import { TelegramBookGate } from "@/components/telegram-book-gate";
-import { BOOK, CHAPTERS, PORTRAITS, SONGS } from "@/data/book";
-import { FREE_UNTIL, OFFER } from "@/lib/kit";
+import { SiteShell } from "@/components/site-chrome";
+import { BOOK } from "@/data/book";
+import { CHAPTERS } from "@/data/chapters";
+import { loadProgress } from "@/lib/progress";
+import { fmtTime } from "@/lib/utils";
+import { useEffect, useState } from "react";
 
-export const Route = createFileRoute("/")({ component: Edition });
+export const Route = createFileRoute("/")({ component: Home });
 
-function Edition() {
+function Home() {
+  const [resumeId, setResumeId] = useState("01");
+
+  useEffect(() => {
+    const p = loadProgress();
+    if (p?.chapterId) setResumeId(p.chapterId);
+  }, []);
+
+  const resume = CHAPTERS.find((c) => c.id === resumeId) ?? CHAPTERS[0];
+
   return (
-    <main className="min-h-dvh bg-bg pb-24 text-fg md:pb-0">
-      <SiteHeader active="film" />
-
-      <section id="film" className="mx-auto max-w-6xl scroll-mt-16 px-4 py-4 md:scroll-mt-20 md:px-8 md:py-6">
-        <p className="font-display text-xs tracking-[0.32em] text-accent uppercase">
-          Короткий метр · Открытый код · 5:32
-        </p>
-        <h2 className="mt-1 font-display text-2xl font-medium text-balance md:mt-2 md:text-4xl">
-          Открытый код
-        </h2>
-        <p className="mt-2 hidden max-w-2xl text-sm leading-relaxed text-pretty text-muted md:mt-3 md:block">
-          {BOOK.formula} Пятнадцать глав. Шкала W0–W3. Голос пакета читает до «не ноль».
-        </p>
-        <div className="mt-4 md:mt-6">
-          <FilmStage />
-        </div>
-        <p className="mt-3 text-xs leading-relaxed text-muted md:text-sm">
-          Визуальный крючок каждые пять секунд. Фильм — вход. Главы 01–03 — дегустация.
-        </p>
-      </section>
-
-      <section className="mx-auto max-w-6xl border-t border-line px-4 py-8 md:px-8 md:py-10">
-        <p className="font-display text-xs tracking-[0.28em] text-accent uppercase">Формат · не хронометраж</p>
-        <h2 className="mt-2 font-display text-3xl font-medium md:text-4xl">Не часы. Плотность.</h2>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-pretty text-muted md:text-base">
-          Час голоса пакета и пять минут тридцать две секунды стекла. Это том на одну
-          ночь, не марафон. Платите за эстетику пакета, не за рубли в час.
-        </p>
-        <div className="mt-5 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-md border border-line bg-surface p-4">
-            <p className="font-display text-xs tracking-[0.2em] text-muted uppercase">Дегустация</p>
-            <p className="mt-2 font-display text-xl">01–03 открыты</p>
-            <p className="mt-1 text-sm text-muted">Тишина. Рот. Стекло.</p>
-          </div>
-          <div className="rounded-md border border-line bg-surface p-4">
-            <p className="font-display text-xs tracking-[0.2em] text-muted uppercase">Канал</p>
-            <p className="mt-2 font-display text-xl">{OFFER.channel}/мес</p>
-            <p className="mt-1 text-sm text-muted">Полный том в Telegram.</p>
-          </div>
-          <div className="rounded-md border border-accent/50 bg-surface p-4">
-            <p className="font-display text-xs tracking-[0.2em] text-accent uppercase">Бандл</p>
-            <p className="mt-2 font-display text-xl">
-              {OFFER.bundle}–{OFFER.bundleHigh}
-            </p>
-            <p className="mt-1 text-sm text-muted">Разово. 04–15 + голос + досье.</p>
-          </div>
-        </div>
-        <div className="mt-5">
-          <TelegramBookGate
-            label="Забрать комплект"
-            className="inline-flex min-h-12 items-center gap-2 rounded-md border border-accent px-5 font-display text-sm tracking-[0.16em] text-accent uppercase hover:bg-raised"
-          />
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl border-t border-line px-4 py-8 md:px-8 md:py-10">
-        <p className="font-display text-xs tracking-[0.28em] text-accent uppercase">
-          Бесплатный вход · коктейль
-        </p>
-        <h2 className="mt-2 font-display text-3xl font-medium md:text-4xl">Две песни. Потом том.</h2>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-pretty text-muted md:text-base">
-          Алгоритм несёт эстетику бесплатно. Наушники — объём. Три открытые главы держат сюжет.
-          Бандл — плотность, не марафон.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-3">
-          <a
-            href={OFFER.yandex}
-            className="min-h-11 rounded-md border border-line px-4 py-2 font-display text-xs tracking-[0.18em] uppercase hover:border-accent"
-          >
-            Яндекс Музыка
-          </a>
-          <a
-            href={OFFER.spotify}
-            className="min-h-11 rounded-md border border-line px-4 py-2 font-display text-xs tracking-[0.18em] uppercase hover:border-accent"
-          >
-            Spotify
-          </a>
-        </div>
-        <ul className="mt-5 grid gap-3 md:grid-cols-2">
-          {SONGS.map((s) => (
-            <li key={s.id} className="rounded-md border border-line bg-surface p-4">
-              <p className="font-display text-xl">{s.title}</p>
-              <p className="mt-1 text-xs tabular-nums tracking-wide text-muted">{s.time} · наушники</p>
-              <audio className="mt-3 w-full" src={s.src} controls preload="metadata" />
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section
-        id="chapters"
-        className="mx-auto max-w-6xl scroll-mt-16 border-t border-line px-4 py-8 md:scroll-mt-20 md:px-8 md:py-10"
-      >
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="font-display text-xs tracking-[0.28em] text-muted uppercase">
-              {BOOK.volume} · {BOOK.author}
-            </p>
-            <h2 className="mt-2 font-display text-3xl font-medium md:text-4xl">Пятнадцать глав</h2>
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-pretty text-muted">
-              {BOOK.subtitle}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-3">
+    <SiteShell>
+      <section className="relative min-h-[88dvh] overflow-hidden">
+        <img
+          src={BOOK.hero}
+          alt=""
+          className="absolute inset-0 size-full object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/55 to-bg/25" />
+        <div className="relative mx-auto flex min-h-[88dvh] max-w-6xl flex-col justify-end px-4 pb-16 pt-24 md:px-8 md:pb-24">
+          <p className="font-display text-xs tracking-[0.32em] text-accent uppercase">{BOOK.volume}</p>
+          <h1 className="mt-3 max-w-3xl font-display text-5xl leading-[0.95] tracking-[-0.04em] text-balance md:text-7xl">
+            {BOOK.title}
+          </h1>
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-pretty text-fg/90 md:text-lg">
+            {BOOK.logline}
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
             <Link
               to="/ch/$id"
-              params={{ id: "01" }}
-              className="min-h-12 rounded-md border border-accent px-5 py-3 font-display text-sm tracking-[0.18em] text-accent uppercase transition-[transform,background-color] duration-150 hover:bg-raised active:scale-[0.96]"
+              params={{ id: resume.id }}
+              className="inline-flex min-h-12 items-center rounded-md bg-accent px-5 font-display text-sm tracking-[0.16em] text-accent-fg uppercase transition-transform duration-150 active:scale-[0.98]"
             >
-              Глава 01 · Тишина
+              {resume.id === "01" ? "Читать книгу" : `Продолжить · ${resume.title}`}
             </Link>
             <Link
-              to="/ch/$id"
-              params={{ id: "01" }}
-              onClick={() => startAudioChain()}
-              className="min-h-12 rounded-md border border-line px-5 py-3 font-display text-sm tracking-[0.18em] uppercase transition-[transform,background-color] duration-150 hover:border-accent hover:bg-raised active:scale-[0.96]"
+              to="/film"
+              className="inline-flex min-h-12 items-center rounded-md border border-line px-5 font-display text-sm tracking-[0.16em] uppercase hover:border-accent"
             >
-              Слушать с первой
+              Кинозал
             </Link>
           </div>
         </div>
+      </section>
 
-        <ol className="mt-6 grid gap-3 md:mt-8 md:grid-cols-2 md:gap-4">
+      <section id="book" className="mx-auto max-w-6xl scroll-mt-16 px-4 py-12 md:px-8 md:py-16">
+        <p className="font-display text-xs tracking-[0.28em] text-muted uppercase">Пятнадцать глав</p>
+        <h2 className="mt-2 font-display text-3xl md:text-4xl">Том открыт целиком</h2>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-pretty text-muted md:text-base">
+          Главы 01–07 — текст и голос. Главы 08–15 — только текст. Музыка стоит между главами, не под пакетом.
+        </p>
+        <ol className="mt-8 grid gap-3 md:grid-cols-2">
           {CHAPTERS.map((c) => (
-            <li key={c.id}>
+            <li key={c.id} className="min-w-0">
               <Link
                 to="/ch/$id"
                 params={{ id: c.id }}
-                className="group flex flex-col overflow-hidden rounded-md border border-line bg-surface transition-[border-color] duration-150 hover:border-accent sm:flex-row sm:items-stretch"
+                className="group flex min-w-0 overflow-hidden rounded-lg border border-line bg-surface transition-colors duration-150 hover:border-accent"
               >
                 <img
                   src={c.image}
                   alt=""
-                  className="aspect-video w-full object-cover object-top sm:h-40 sm:w-36 sm:shrink-0 sm:aspect-auto"
+                  className="h-28 w-24 shrink-0 object-cover object-center sm:h-32 sm:w-28"
                 />
                 <span className="flex min-w-0 flex-1 flex-col justify-center gap-1 p-3 sm:p-4">
-                  <span className="text-xs tabular-nums tracking-[0.2em] text-muted uppercase">
-                    Глава {c.id}
-                    {c.percent != null ? ` · ${c.percent}%` : ""} · {c.wound} · {c.audioTime}
-                    {Number(c.id) > FREE_UNTIL ? " · комплект" : " · открыта"}
+                  <span className="truncate font-display text-[11px] tracking-[0.2em] text-muted uppercase">
+                    {c.id} · {c.wound}
+                    {c.percent != null ? ` · ${c.percent}%` : ""}
+                    {c.audio ? ` · ${c.audio.time}` : " · текст"}
                   </span>
-                  <span className="font-display text-xl leading-tight md:text-2xl">{c.title}</span>
-                  <span className="text-sm text-pretty text-muted">{c.line}</span>
+                  <span className="font-display text-xl leading-tight">{c.title}</span>
+                  <span className="truncate text-sm text-muted">{c.line}</span>
                 </span>
               </Link>
             </li>
@@ -161,52 +87,47 @@ function Edition() {
         </ol>
       </section>
 
-      <section
-        id="faces"
-        className="mx-auto max-w-6xl scroll-mt-16 border-t border-line px-4 py-8 md:scroll-mt-20 md:px-8 md:py-10"
-      >
-        <div className="flex flex-wrap items-end justify-between gap-4">
+      <section className="mx-auto grid max-w-6xl gap-3 px-4 pb-16 md:grid-cols-2 md:px-8">
+        <Link
+          to="/film"
+          className="group min-w-0 overflow-hidden rounded-lg border border-line bg-surface hover:border-accent"
+        >
+          <img src={BOOK.filmPoster} alt="" className="aspect-video w-full object-cover object-center" />
+          <div className="p-4">
+            <p className="font-display text-[11px] tracking-[0.2em] text-muted uppercase">
+              Кинозал · {fmtTime(BOOK.filmDur)} · стерео
+            </p>
+            <p className="mt-1 font-display text-2xl">Открытый код</p>
+            <p className="mt-1 text-sm text-muted">Короткий метр тома. Без чужих плашек.</p>
+          </div>
+        </Link>
+        <Link
+          to="/audio"
+          className="flex min-w-0 flex-col justify-between rounded-lg border border-line bg-surface p-4 hover:border-accent md:p-6"
+        >
           <div>
-            <p className="font-display text-xs tracking-[0.28em] text-muted uppercase">Досье тома</p>
-            <h2 className="mt-2 font-display text-3xl font-medium">Юля. YU-7. YU-9. Элиас.</h2>
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-pretty text-muted">
-              Не инвентарь Части I. Задержка века отличает имя. Элиас смотрит на жест, не на скулы.
+            <p className="font-display text-[11px] tracking-[0.2em] text-muted uppercase">Аудиозал</p>
+            <p className="mt-1 font-display text-2xl">Голос 01–07</p>
+            <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted">
+              Семь канонических глав. 08–15 остаются текстом. Музыка только между главами.
             </p>
           </div>
-          <Link
-            to="/faces"
-            className="min-h-12 rounded-md border border-line px-5 py-3 font-display text-sm tracking-[0.18em] uppercase hover:border-accent"
-          >
-            Открыть досье
-          </Link>
-        </div>
-        <ul className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-          {PORTRAITS.map((p) => (
-            <li key={p.id}>
-              <Link to="/faces" className="group block overflow-hidden rounded-md border border-line bg-surface">
-                <img src={p.image} alt={p.name} className="aspect-[2/3] w-full object-cover object-top" />
-                <span className="block p-3">
-                  <span className="block font-mono text-[11px] tracking-[0.22em] text-accent uppercase">
-                    {p.code}
-                  </span>
-                  <span className="mt-1 block font-display text-xl">{p.name}</span>
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+          <p className="mt-6 font-display text-xs tracking-[0.16em] text-accent uppercase">Слушать</p>
+        </Link>
       </section>
 
-      <footer className="border-t border-line px-4 py-10 text-center md:px-8">
+      <footer className="border-t border-line px-4 py-12 text-center md:px-8">
         <p className="font-display text-2xl italic">Рот ещё мой.</p>
         <p className="mt-3 text-sm text-muted">
           {BOOK.title} · {BOOK.volume} · {BOOK.author}
         </p>
-        <p className="mt-4 text-xs tracking-wide text-muted">
-          Часть I — отдельный том. Здесь — открытый код.
-        </p>
+        <a
+          href={BOOK.part1Url}
+          className="mt-4 inline-block font-display text-xs tracking-[0.16em] text-muted uppercase hover:text-fg"
+        >
+          Часть I · Редакция 4.0
+        </a>
       </footer>
-      <BottomNav />
-    </main>
+    </SiteShell>
   );
 }

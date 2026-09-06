@@ -36,7 +36,7 @@ function Edition() {
         <p className="font-display text-xs tracking-[0.28em] text-accent uppercase">Формат · не хронометраж</p>
         <h2 className="mt-2 font-display text-3xl font-medium md:text-4xl">Не часы. Плотность.</h2>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-pretty text-muted md:text-base">
-          Пятьдесят одна минута голоса и пять минут тридцать две секунды стекла. Это том на одну
+          Час голоса пакета и пять минут тридцать две секунды стекла. Это том на одну
           ночь, не марафон. Платите за эстетику пакета, не за рубли в час.
         </p>
         <div className="mt-5 grid gap-3 sm:grid-cols-3">

@@ -90,7 +90,11 @@ export function FilmStage({
     else v.pause();
   };
 
-  const active = [...shots].reverse().find((c) => time >= c.start - 0.12) ?? shots[0];
+  const active =
+    shots.reduce<FilmShot | undefined>((best, c) => {
+      if (c.start <= time + 0.12 && (best == null || c.start >= best.start)) return c;
+      return best;
+    }, undefined) ?? shots[0];
   const progress = dur > 0 ? Math.min(1, time / dur) : 0;
 
   return (
@@ -131,19 +135,18 @@ export function FilmStage({
               Хлеб сухой. Двор не смотрит.
             </span>
             <span className="font-display text-[11px] tracking-[0.22em] text-muted uppercase">
-              15 секунд · крючок
+              5:32 · голос пакета
             </span>
           </button>
         )}
 
         {started && !ended && active && (
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-bg to-transparent p-4 pt-20">
-            <p key={beatFlash} className="font-display text-lg italic text-fg/90 md:text-xl">
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-bg to-transparent p-4 pt-16 md:p-6">
+            <p key={beatFlash} className="font-display text-xl italic text-fg md:text-2xl">
               {active.line ?? active.title}
             </p>
             <p className="mt-1 text-xs tracking-wider text-muted uppercase">
-              Сцена {active.id}. {active.title}
-              {time < 15 ? " · 15с" : ""}
+              {active.id}. {active.title}
             </p>
           </div>
         )}

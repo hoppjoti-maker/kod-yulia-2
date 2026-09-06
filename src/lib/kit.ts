@@ -8,6 +8,8 @@ export const OFFER = {
   bundleHigh: "890 ₽",
   channel: "199 ₽",
   telegram: "https://t.me/neuralbookk",
+  yandex: "https://music.yandex.ru/search?text=%D0%9A%D0%BE%D0%B4%20%D0%AE%D0%BB%D1%8F",
+  spotify: "https://open.spotify.com/search/%D0%9A%D0%BE%D0%B4%20%D0%AE%D0%BB%D1%8F",
 } as const;
 
 export function unlockKit() {

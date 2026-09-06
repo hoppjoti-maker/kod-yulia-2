@@ -66,12 +66,13 @@ function ChapterPage() {
           <PercentBar value={chapter.percent} />
         </div>
 
-        <figure className="mt-5 overflow-hidden rounded-md border border-line">
+        <figure className="relative mt-5 overflow-hidden rounded-md border border-line">
           <img
             src={chapter.image}
             alt={chapter.caption}
             className="aspect-video max-h-64 w-full object-cover object-top md:max-h-none"
           />
+          <div className="glass-hold pointer-events-none absolute inset-0 bg-accent/10" aria-hidden />
           <figcaption className="px-3 py-2 text-xs tracking-wide text-muted">
             {chapter.caption}
           </figcaption>

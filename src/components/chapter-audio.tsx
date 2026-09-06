@@ -39,8 +39,43 @@ export function ChapterAudio({
   const [dur, setDur] = useState(0);
   const [rate, setRate] = useState(1);
   const [available, setAvailable] = useState(true);
+  const [space, setSpace] = useState(true);
   const onEndedRef = useRef(onEnded);
   onEndedRef.current = onEnded;
+  const ctxRef = useRef<AudioContext | null>(null);
+  const delayRef = useRef<DelayNode | null>(null);
+  const wiredRef = useRef(false);
+
+  const wireSpace = () => {
+    const el = ref.current;
+    if (!el || wiredRef.current) return;
+    try {
+      const Ctor =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!Ctor) return;
+      const ctx = new Ctor();
+      const src = ctx.createMediaElementSource(el);
+      const delay = ctx.createDelay(0.03);
+      delay.delayTime.value = space ? 0.012 : 0;
+      const filter = ctx.createBiquadFilter();
+      filter.type = "highshelf";
+      filter.frequency.value = 3500;
+      filter.gain.value = -2.5;
+      const merger = ctx.createChannelMerger(2);
+      src.connect(merger, 0, 0);
+      src.connect(delay);
+      delay.connect(filter);
+      filter.connect(merger, 0, 1);
+      merger.connect(ctx.destination);
+      ctxRef.current = ctx;
+      delayRef.current = delay;
+      wiredRef.current = true;
+      void ctx.resume();
+    } catch {
+      /* keep element graph */
+    }
+  };
 
   useEffect(() => {
     const el = ref.current;
@@ -60,6 +95,8 @@ export function ChapterAudio({
     const onPlay = () => {
       setPlaying(true);
       audioBus.dispatchEvent(new CustomEvent("play", { detail: idRef.current }));
+      wireSpace();
+      void ctxRef.current?.resume();
     };
     const onPause = () => setPlaying(false);
     const onStop = () => {
@@ -105,6 +142,10 @@ export function ChapterAudio({
   useEffect(() => {
     if (ref.current) ref.current.playbackRate = rate;
   }, [rate]);
+
+  useEffect(() => {
+    if (delayRef.current) delayRef.current.delayTime.value = space ? 0.012 : 0;
+  }, [space]);
 
   const toggle = () => {
     const el = ref.current;
@@ -153,10 +194,22 @@ export function ChapterAudio({
             <p className="truncate font-display text-base leading-tight text-fg md:text-lg">{title}</p>
             <p className="mt-0.5 text-xs tabular-nums tracking-wide text-muted">
               {available
-                ? `${fmtTime(time)} · ${dur ? fmtTime(dur) : label || "голос"} · наушники · объём`
+                ? `${fmtTime(time)} · ${dur ? fmtTime(dur) : label || "голос"}`
                 : "Голос готовится · читайте главу"}
             </p>
           </div>
+          <button
+            type="button"
+            onClick={() => setSpace((v) => !v)}
+            className={
+              "min-h-11 shrink-0 rounded-sm px-2 font-display text-xs tracking-[0.14em] uppercase " +
+              (space ? "text-accent" : "text-muted")
+            }
+            aria-pressed={space}
+            aria-label="Пространственный звук"
+          >
+            {space ? "объём" : "моно"}
+          </button>
           <div className="flex shrink-0 gap-0.5" role="group" aria-label="Темп">
             {[0.9, 1, 1.1].map((r) => (
               <button
@@ -175,6 +228,13 @@ export function ChapterAudio({
         </div>
         <div className="relative mt-2">
           <div className="pointer-events-none absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-line" />
+          {dur > 180 ? (
+            <span
+              className="pointer-events-none absolute top-1/2 h-2 w-px -translate-y-1/2 bg-accent"
+              style={{ left: `${(180 / dur) * 100}%` }}
+              aria-hidden
+            />
+          ) : null}
           <div
             className={
               "pointer-events-none absolute top-1/2 left-0 h-0.5 -translate-y-1/2 bg-accent " +

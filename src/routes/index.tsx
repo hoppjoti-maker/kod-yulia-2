@@ -72,9 +72,23 @@ function Edition() {
         </p>
         <h2 className="mt-2 font-display text-3xl font-medium md:text-4xl">Две песни. Потом том.</h2>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-pretty text-muted md:text-base">
-          Не рубли за час. Алгоритм несёт эстетику. Наушники — объём. Три открытые главы держат
-          сюжет. Бандл — плотность, не марафон.
+          Алгоритм несёт эстетику бесплатно. Наушники — объём. Три открытые главы держат сюжет.
+          Бандл — плотность, не марафон.
         </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <a
+            href={OFFER.yandex}
+            className="min-h-11 rounded-md border border-line px-4 py-2 font-display text-xs tracking-[0.18em] uppercase hover:border-accent"
+          >
+            Яндекс Музыка
+          </a>
+          <a
+            href={OFFER.spotify}
+            className="min-h-11 rounded-md border border-line px-4 py-2 font-display text-xs tracking-[0.18em] uppercase hover:border-accent"
+          >
+            Spotify
+          </a>
+        </div>
         <ul className="mt-5 grid gap-3 md:grid-cols-2">
           {SONGS.map((s) => (
             <li key={s.id} className="rounded-md border border-line bg-surface p-4">

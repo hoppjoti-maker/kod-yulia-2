@@ -51,9 +51,9 @@ export type Chapter = {
 const BODY_BY_ID = Object.fromEntries(CHAPTER_BODIES.map((c) => [c.id, c.paragraphs]));
 
 const AUDIO_TIME: Record<string, string> = {
-  "01": "6:54",
-  "02": "4:52",
-  "03": "6:02",
+  "01": "2:47",
+  "02": "3:08",
+  "03": "2:24",
   "04": "6:34",
   "05": "2:11",
   "06": "2:45",
@@ -65,7 +65,7 @@ const AUDIO_TIME: Record<string, string> = {
   "12": "2:16",
   "13": "2:40",
   "14": "2:39",
-  "15": "1:49",
+  "15": "1:37",
 };
 
 export const CHAPTERS: Chapter[] = CHAPTER_META.map((m) => ({

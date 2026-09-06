@@ -4,7 +4,7 @@ import { startAudioChain } from "@/components/chapter-audio";
 import { FilmStage } from "@/components/film-stage";
 import { SiteHeader } from "@/components/site-header";
 import { TelegramBookGate } from "@/components/telegram-book-gate";
-import { BOOK, CHAPTERS, PORTRAITS } from "@/data/book";
+import { BOOK, CHAPTERS, PORTRAITS, SONGS } from "@/data/book";
 import { FREE_UNTIL, OFFER } from "@/lib/kit";
 
 export const Route = createFileRoute("/")({ component: Edition });
@@ -64,6 +64,26 @@ function Edition() {
             className="inline-flex min-h-12 items-center gap-2 rounded-md border border-accent px-5 font-display text-sm tracking-[0.16em] text-accent uppercase hover:bg-raised"
           />
         </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl border-t border-line px-4 py-8 md:px-8 md:py-10">
+        <p className="font-display text-xs tracking-[0.28em] text-accent uppercase">
+          Бесплатный вход · стриминг
+        </p>
+        <h2 className="mt-2 font-display text-3xl font-medium md:text-4xl">Две песни. Потом том.</h2>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-pretty text-muted md:text-base">
+          Алгоритм приводит к эстетике. Треки Части I остаются открытым коктейлем. Здесь — пятнадцать
+          глав, не двенадцать ударов.
+        </p>
+        <ul className="mt-5 grid gap-3 md:grid-cols-2">
+          {SONGS.map((s) => (
+            <li key={s.id} className="rounded-md border border-line bg-surface p-4">
+              <p className="font-display text-xl">{s.title}</p>
+              <p className="mt-1 text-xs tabular-nums tracking-wide text-muted">{s.time} · наушники</p>
+              <audio className="mt-3 w-full" src={s.src} controls preload="metadata" />
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section

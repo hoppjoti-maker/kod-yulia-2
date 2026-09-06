@@ -122,6 +122,9 @@ export function FilmStage({
             <span className="font-display text-sm tracking-[0.28em] text-accent uppercase">
               Смотреть
             </span>
+            <span className="max-w-xs px-6 text-center font-display text-lg italic text-fg/90">
+              Хлеб сухой. Я стою.
+            </span>
           </button>
         )}
 

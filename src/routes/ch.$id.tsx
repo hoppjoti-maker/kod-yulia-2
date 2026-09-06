@@ -95,7 +95,7 @@ function ChapterPage() {
               onEnded={() => {
                 if (typeof window === "undefined") return;
                 if (sessionStorage.getItem("kod-yulia-2-chain") !== "1") return;
-                if (next) {
+                if (next && isChapterOpen(next.id)) {
                   void navigate({ to: "/ch/$id", params: { id: next.id } });
                 } else {
                   stopAudioChain();
@@ -110,6 +110,24 @@ function ChapterPage() {
                 </p>
               ))}
             </div>
+
+            {Number(chapter.id) === FREE_UNTIL && next ? (
+              <section className="mt-10 rounded-md border border-accent/50 bg-surface p-5 text-center md:p-8">
+                <p className="font-display text-xs tracking-[0.28em] text-accent uppercase">
+                  Дегустация закрыта
+                </p>
+                <p className="mt-2 font-display text-2xl italic md:text-3xl">{next.cliff}</p>
+                <p className="mt-3 text-sm leading-relaxed text-pretty text-muted">
+                  Три главы. Привязка есть. Дальше — бандл тома, не минуты в час.
+                </p>
+                <div className="mt-5 flex justify-center">
+                  <TelegramBookGate
+                    label="Открыть 04–15"
+                    className="flex min-h-12 items-center justify-center gap-2 rounded-md border border-accent px-5 font-display text-sm tracking-[0.16em] text-accent uppercase hover:bg-raised"
+                  />
+                </div>
+              </section>
+            ) : null}
           </>
         ) : (
           <>

@@ -153,7 +153,7 @@ export function ChapterAudio({
             <p className="truncate font-display text-base leading-tight text-fg md:text-lg">{title}</p>
             <p className="mt-0.5 text-xs tabular-nums tracking-wide text-muted">
               {available
-                ? `${fmtTime(time)} · ${dur ? fmtTime(dur) : label || "голос"}`
+                ? `${fmtTime(time)} · ${dur ? fmtTime(dur) : label || "голос"} · наушники`
                 : "Голос готовится · читайте главу"}
             </p>
           </div>

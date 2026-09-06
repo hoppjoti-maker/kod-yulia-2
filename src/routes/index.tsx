@@ -17,10 +17,10 @@ function Edition() {
           Короткий метр · Открытый код · 5:32
         </p>
         <h2 className="mt-1 font-display text-2xl font-medium text-balance md:mt-2 md:text-4xl">
-          Город уже читает
+          Открытый код
         </h2>
         <p className="mt-2 hidden max-w-2xl text-sm leading-relaxed text-pretty text-muted md:mt-3 md:block">
-          {BOOK.formula} Пятнадцать глав. Лицо на стекле. Голос, который читает до «не ноль».
+          {BOOK.formula} Пятнадцать глав. Шкала W0–W3. Голос пакета читает до «не ноль».
         </p>
         <div className="mt-4 md:mt-6">
           <FilmStage />

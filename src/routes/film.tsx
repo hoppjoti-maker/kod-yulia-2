@@ -7,7 +7,7 @@ import { BOOK } from "@/data/book";
 export const Route = createFileRoute("/film")({
   component: FilmPage,
   head: () => ({
-    meta: [{ title: `Город уже читает — ${BOOK.title}` }],
+    meta: [{ title: `Открытый код — ${BOOK.title}` }],
   }),
 });
 
@@ -21,10 +21,10 @@ function FilmPage() {
           Короткий метр · Часть II · Открытый код
         </p>
         <h2 className="mt-1 font-display text-2xl font-medium text-balance md:mt-2 md:text-4xl">
-          Город уже читает
+          Открытый код
         </h2>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-pretty text-muted">
-          Стекло держит лицо. Хлеб. Жест. «Нет». Рот ещё её. Это не двенадцать ударов Части I.
+          Стекло держит лицо. Хлеб. Жест. «Нет». Голос пакета. Это не Часть I.
         </p>
         <div className="mt-4 md:mt-6">
           <FilmStage

@@ -121,7 +121,7 @@ export const FILM_SHOTS = [
   { id: "04", start: 79, tc: "1:19", title: "Жест", line: "Ты дрожишь так же.", still: asset("/film/stills/04.jpg") },
   { id: "05", start: 206, tc: "3:26", title: "Комната", line: "Здесь канал кормится.", still: asset("/film/stills/05.jpg") },
   { id: "06", start: 107, tc: "1:47", title: "Два профиля", line: "Сбой видно.", still: asset("/film/stills/06.jpg") },
-  { id: "07", start: 150, tc: "2:30", title: "Касса", line: "Касса думает.", still: asset("/film/stills/07.jpg") },
+  { id: "07", start: 150, tc: "2:30", title: "Касса", line: "Сорок.", still: asset("/film/stills/07.jpg") },
   { id: "08", start: 160, tc: "2:40", title: "Дата", line: "Дата есть. Места нет.", still: asset("/film/stills/08.jpg") },
   { id: "09", start: 236, tc: "3:56", title: "Нет", line: "Нет.", still: asset("/film/stills/09.jpg") },
   { id: "10", start: 248, tc: "4:08", title: "После смены", line: "Смотрит снаружи.", still: asset("/film/stills/10.jpg") },

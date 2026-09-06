@@ -60,7 +60,7 @@ export function TelegramBookGate({
                   </h2>
                   <p className="mt-3 text-sm leading-relaxed text-pretty text-muted">
                     Три главы и фильм — дегустация. Дальше том целиком: голос пакета, досье лиц,
-                    главы 04–15 до «не ноль». Платите за погружение, не за минуты.
+                    главы 04–15 до «не ноль». Платите за погружение, не за минуты. Наушники.
                   </p>
                   <ul className="mt-5 space-y-2 border border-line bg-surface p-4 text-sm">
                     <li className="flex justify-between gap-3">

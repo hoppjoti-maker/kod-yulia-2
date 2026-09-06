@@ -68,12 +68,12 @@ function Edition() {
 
       <section className="mx-auto max-w-6xl border-t border-line px-4 py-8 md:px-8 md:py-10">
         <p className="font-display text-xs tracking-[0.28em] text-accent uppercase">
-          Бесплатный вход · стриминг
+          Бесплатный вход · коктейль
         </p>
         <h2 className="mt-2 font-display text-3xl font-medium md:text-4xl">Две песни. Потом том.</h2>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-pretty text-muted md:text-base">
-          Алгоритм приводит к эстетике. Треки Части I остаются открытым коктейлем. Здесь — пятнадцать
-          глав, не двенадцать ударов.
+          Не рубли за час. Алгоритм несёт эстетику. Наушники — объём. Три открытые главы держат
+          сюжет. Бандл — плотность, не марафон.
         </p>
         <ul className="mt-5 grid gap-3 md:grid-cols-2">
           {SONGS.map((s) => (
@@ -189,11 +189,7 @@ function Edition() {
           {BOOK.title} · {BOOK.volume} · {BOOK.author}
         </p>
         <p className="mt-4 text-xs tracking-wide text-muted">
-          Песни и двенадцать ударов живут в{" "}
-          <a href={BOOK.part1Url} className="text-accent underline-offset-4 hover:underline">
-            Части I
-          </a>
-          . Здесь — открытый код.
+          Часть I — отдельный том. Здесь — открытый код.
         </p>
       </footer>
       <BottomNav />

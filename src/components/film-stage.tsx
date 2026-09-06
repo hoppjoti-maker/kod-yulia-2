@@ -37,6 +37,7 @@ export function FilmStage({
   const [time, setTime] = useState(0);
   const [dur, setDur] = useState<number>(duration);
   const [beatFlash, setBeatFlash] = useState(0);
+  const lastBeat = useRef(-1);
 
   useEffect(() => {
     const v = videoRef.current;
@@ -44,7 +45,11 @@ export function FilmStage({
     const onTime = () => {
       const t = v.currentTime;
       setTime(t);
-      setBeatFlash(Math.floor(t / 5));
+      const beat = Math.floor(t / 5);
+      if (beat !== lastBeat.current) {
+        lastBeat.current = beat;
+        setBeatFlash(beat);
+      }
     };
     const onMeta = () => setDur(v.duration || duration);
     const onPlay = () => {
@@ -123,18 +128,22 @@ export function FilmStage({
               Смотреть
             </span>
             <span className="max-w-xs px-6 text-center font-display text-lg italic text-fg/90">
-              Хлеб сухой. Я стою.
+              Хлеб сухой. Двор не смотрит.
+            </span>
+            <span className="font-display text-[11px] tracking-[0.22em] text-muted uppercase">
+              15 секунд · крючок
             </span>
           </button>
         )}
 
         {started && !ended && active && (
           <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-bg to-transparent p-4 pt-20">
-            <p className="font-display text-lg italic text-fg/90 md:text-xl">
+            <p key={beatFlash} className="font-display text-lg italic text-fg/90 md:text-xl">
               {active.line ?? active.title}
             </p>
             <p className="mt-1 text-xs tracking-wider text-muted uppercase">
               Сцена {active.id}. {active.title}
+              {time < 15 ? " · 15с" : ""}
             </p>
           </div>
         )}
@@ -164,6 +173,16 @@ export function FilmStage({
         <div className="min-w-0 flex-1">
           <div className="relative">
             <div className="pointer-events-none absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-line" />
+            {dur > 0
+              ? Array.from({ length: Math.floor(dur / 5) }, (_, i) => (
+                  <span
+                    key={i}
+                    className="pointer-events-none absolute top-1/2 h-1.5 w-px -translate-y-1/2 bg-accent/40"
+                    style={{ left: `${((i + 1) * 5 * 100) / dur}%` }}
+                    aria-hidden
+                  />
+                ))
+              : null}
             <div
               className={
                 "pointer-events-none absolute top-1/2 left-0 h-0.5 -translate-y-1/2 bg-accent " +

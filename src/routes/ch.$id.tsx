@@ -6,7 +6,7 @@ import { PercentBar } from "@/components/percent-bar";
 import { SiteHeader } from "@/components/site-header";
 import { TelegramBookGate } from "@/components/telegram-book-gate";
 import { BOOK, getChapter, neighbors, saveProgress } from "@/data/book";
-import { FREE_UNTIL, isChapterOpen } from "@/lib/kit";
+import { FREE_UNTIL, OFFER, isChapterOpen } from "@/lib/kit";
 
 export const Route = createFileRoute("/ch/$id")({
   component: ChapterPage,
@@ -118,7 +118,8 @@ function ChapterPage() {
                 </p>
                 <p className="mt-2 font-display text-2xl italic md:text-3xl">{next.cliff}</p>
                 <p className="mt-3 text-sm leading-relaxed text-pretty text-muted">
-                  Три главы. Привязка есть. Дальше — бандл тома, не минуты в час.
+                  Три главы. Привязка есть. Канал {OFFER.channel}/мес или бандл {OFFER.bundle}–
+                  {OFFER.bundleHigh}. Не минуты в час — плотность.
                 </p>
                 <div className="mt-5 flex justify-center">
                   <TelegramBookGate

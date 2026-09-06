@@ -68,6 +68,19 @@
   animation: pulse-bar 0.72s ease-in-out infinite;
 }
 
+@keyframes attention-edge {
+  0% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.attention-edge {
+  animation: attention-edge 0.48s ease-out forwards;
+}
+
 @keyframes glass-hold {
   0%,
   100% {

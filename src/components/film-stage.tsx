@@ -36,11 +36,16 @@ export function FilmStage({
   const [ended, setEnded] = useState(false);
   const [time, setTime] = useState(0);
   const [dur, setDur] = useState<number>(duration);
+  const [beatFlash, setBeatFlash] = useState(0);
 
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
-    const onTime = () => setTime(v.currentTime);
+    const onTime = () => {
+      const t = v.currentTime;
+      setTime(t);
+      setBeatFlash(Math.floor(t / 5));
+    };
     const onMeta = () => setDur(v.duration || duration);
     const onPlay = () => {
       setPlaying(true);
@@ -96,6 +101,13 @@ export function FilmStage({
           controls={false}
           onClick={toggle}
         />
+        {playing && beatFlash > 0 ? (
+          <div
+            key={beatFlash}
+            className="attention-edge pointer-events-none absolute inset-0 border-2 border-accent"
+            aria-hidden
+          />
+        ) : null}
 
         {!started && (
           <button

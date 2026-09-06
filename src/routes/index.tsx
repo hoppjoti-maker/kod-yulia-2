@@ -3,7 +3,9 @@ import { BottomNav } from "@/components/bottom-nav";
 import { startAudioChain } from "@/components/chapter-audio";
 import { FilmStage } from "@/components/film-stage";
 import { SiteHeader } from "@/components/site-header";
+import { TelegramBookGate } from "@/components/telegram-book-gate";
 import { BOOK, CHAPTERS, PORTRAITS } from "@/data/book";
+import { FREE_UNTIL, OFFER } from "@/lib/kit";
 
 export const Route = createFileRoute("/")({ component: Edition });
 
@@ -24,6 +26,43 @@ function Edition() {
         </p>
         <div className="mt-4 md:mt-6">
           <FilmStage />
+        </div>
+        <p className="mt-3 text-xs leading-relaxed text-muted md:text-sm">
+          Визуальный крючок каждые пять секунд. Фильм — вход. Главы 01–03 — дегустация.
+        </p>
+      </section>
+
+      <section className="mx-auto max-w-6xl border-t border-line px-4 py-8 md:px-8 md:py-10">
+        <p className="font-display text-xs tracking-[0.28em] text-accent uppercase">Формат · не хронометраж</p>
+        <h2 className="mt-2 font-display text-3xl font-medium md:text-4xl">Не часы. Плотность.</h2>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-pretty text-muted md:text-base">
+          Пятьдесят одна минута голоса и пять минут тридцать две секунды стекла. Это том на одну
+          ночь, не марафон. Платите за эстетику пакета, не за рубли в час.
+        </p>
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-md border border-line bg-surface p-4">
+            <p className="font-display text-xs tracking-[0.2em] text-muted uppercase">Дегустация</p>
+            <p className="mt-2 font-display text-xl">01–03 открыты</p>
+            <p className="mt-1 text-sm text-muted">Тишина. Рот. Стекло.</p>
+          </div>
+          <div className="rounded-md border border-line bg-surface p-4">
+            <p className="font-display text-xs tracking-[0.2em] text-muted uppercase">Канал</p>
+            <p className="mt-2 font-display text-xl">{OFFER.channel}/мес</p>
+            <p className="mt-1 text-sm text-muted">Полный том в Telegram.</p>
+          </div>
+          <div className="rounded-md border border-accent/50 bg-surface p-4">
+            <p className="font-display text-xs tracking-[0.2em] text-accent uppercase">Бандл</p>
+            <p className="mt-2 font-display text-xl">
+              {OFFER.bundle}–{OFFER.bundleHigh}
+            </p>
+            <p className="mt-1 text-sm text-muted">Разово. 04–15 + голос + досье.</p>
+          </div>
+        </div>
+        <div className="mt-5">
+          <TelegramBookGate
+            label="Забрать комплект"
+            className="inline-flex min-h-12 items-center gap-2 rounded-md border border-accent px-5 font-display text-sm tracking-[0.16em] text-accent uppercase hover:bg-raised"
+          />
         </div>
       </section>
 
@@ -77,6 +116,7 @@ function Edition() {
                   <span className="text-xs tabular-nums tracking-[0.2em] text-muted uppercase">
                     Глава {c.id}
                     {c.percent != null ? ` · ${c.percent}%` : ""} · {c.wound} · {c.audioTime}
+                    {Number(c.id) > FREE_UNTIL ? " · комплект" : " · открыта"}
                   </span>
                   <span className="font-display text-xl leading-tight md:text-2xl">{c.title}</span>
                   <span className="text-sm text-pretty text-muted">{c.line}</span>

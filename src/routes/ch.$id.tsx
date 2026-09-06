@@ -1,10 +1,12 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BottomNav } from "@/components/bottom-nav";
 import { ChapterAudio, audioBus, stopAudioChain } from "@/components/chapter-audio";
 import { PercentBar } from "@/components/percent-bar";
 import { SiteHeader } from "@/components/site-header";
+import { TelegramBookGate } from "@/components/telegram-book-gate";
 import { BOOK, getChapter, neighbors, saveProgress } from "@/data/book";
+import { FREE_UNTIL, isChapterOpen } from "@/lib/kit";
 
 export const Route = createFileRoute("/ch/$id")({
   component: ChapterPage,
@@ -26,9 +28,25 @@ function ChapterPage() {
   const { chapter } = Route.useLoaderData();
   const { prev, next } = neighbors(chapter.id);
   const navigate = useNavigate();
+  const [open, setOpen] = useState(() => Number(chapter.id) <= FREE_UNTIL);
 
   useEffect(() => {
     saveProgress(chapter.id);
+  }, [chapter.id]);
+
+  useEffect(() => {
+    const sync = () => {
+      const unlocked = isChapterOpen(chapter.id);
+      setOpen(unlocked);
+      if (!unlocked) stopAudioChain();
+    };
+    sync();
+    window.addEventListener("focus", sync);
+    window.addEventListener("kod-kit", sync);
+    return () => {
+      window.removeEventListener("focus", sync);
+      window.removeEventListener("kod-kit", sync);
+    };
   }, [chapter.id]);
 
   return (
@@ -59,37 +77,68 @@ function ChapterPage() {
           </figcaption>
         </figure>
 
-        <button
-          type="button"
-          onClick={() => audioBus.dispatchEvent(new Event("toggle"))}
-          className="mt-4 flex min-h-12 w-full items-center justify-center rounded-md border border-accent bg-surface font-display text-sm tracking-[0.16em] text-accent uppercase md:hidden"
-        >
-          Слушать главу · {chapter.audioTime || "голос"}
-        </button>
+        {open ? (
+          <>
+            <button
+              type="button"
+              onClick={() => audioBus.dispatchEvent(new Event("toggle"))}
+              className="mt-4 flex min-h-12 w-full items-center justify-center rounded-md border border-accent bg-surface font-display text-sm tracking-[0.16em] text-accent uppercase md:hidden"
+            >
+              Слушать главу · {chapter.audioTime || "голос"}
+            </button>
 
-        <ChapterAudio
-          dock
-          src={chapter.audio}
-          title={`${chapter.id}. ${chapter.title}`}
-          label={chapter.audioTime || "голос"}
-          onEnded={() => {
-            if (typeof window === "undefined") return;
-            if (sessionStorage.getItem("kod-yulia-2-chain") !== "1") return;
-            if (next) {
-              void navigate({ to: "/ch/$id", params: { id: next.id } });
-            } else {
-              stopAudioChain();
-            }
-          }}
-        />
+            <ChapterAudio
+              dock
+              src={chapter.audio}
+              title={`${chapter.id}. ${chapter.title}`}
+              label={chapter.audioTime || "голос"}
+              onEnded={() => {
+                if (typeof window === "undefined") return;
+                if (sessionStorage.getItem("kod-yulia-2-chain") !== "1") return;
+                if (next) {
+                  void navigate({ to: "/ch/$id", params: { id: next.id } });
+                } else {
+                  stopAudioChain();
+                }
+              }}
+            />
 
-        <div className="book-prose mt-7">
-          {chapter.paragraphs.map((b, i) => (
-            <p key={i} className={b.kind}>
-              {b.text}
-            </p>
-          ))}
-        </div>
+            <div className="book-prose mt-7">
+              {chapter.paragraphs.map((b, i) => (
+                <p key={i} className={b.kind}>
+                  {b.text}
+                </p>
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="book-prose mt-7">
+              {chapter.paragraphs.slice(0, 2).map((b, i) => (
+                <p key={i} className={b.kind}>
+                  {b.text}
+                </p>
+              ))}
+            </div>
+            <div className="relative -mt-16 mb-6 h-24 bg-linear-to-t from-bg to-transparent" />
+            <section className="rounded-md border border-accent/50 bg-surface p-5 text-center md:p-8">
+              <p className="font-display text-xs tracking-[0.28em] text-accent uppercase">
+                Клифф · глава {chapter.id}
+              </p>
+              <p className="mt-2 font-display text-2xl italic md:text-3xl">{chapter.cliff}</p>
+              <p className="mt-3 text-sm leading-relaxed text-pretty text-muted">
+                Три главы были дегустацией. Дальше — плотность тома, не минуты. Голос пакета
+                читает до «не ноль».
+              </p>
+              <div className="mt-5 flex justify-center">
+                <TelegramBookGate
+                  label="Открыть 04–15"
+                  className="flex min-h-12 items-center justify-center gap-2 rounded-md border border-accent px-5 font-display text-sm tracking-[0.16em] text-accent uppercase hover:bg-raised"
+                />
+              </div>
+            </section>
+          </>
+        )}
 
         <p className="mt-12 text-center text-xs tracking-[0.28em] text-muted uppercase">
           /// конец фрагмента {chapter.id} ///
